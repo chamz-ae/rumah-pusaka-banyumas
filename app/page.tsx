@@ -1,69 +1,324 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import HeroSection from '@/components/public/HeroSection';
+import RicikanHighlight from '@/components/public/RicikanHighlight';
+import {
+  Compass,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  BookOpen,
+  Library,
+  Flame,
+} from 'lucide-react';
 
-export default function Home() {
+export const revalidate = 60; // Revalidate data setiap 60 detik
+
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  // Query Koleksi Unggulan (Featured & PUBLISHED)
+  const { data: featuredCollections } = await supabase
+    .from('collections')
+    .select(`
+      id,
+      collection_code,
+      title,
+      slug,
+      estimated_period,
+      origin,
+      category:categories(name),
+      dhapur:dhapurs(name),
+      images:collection_images(image_url, is_primary)
+    `)
+    .eq('status', 'PUBLISHED')
+    .eq('featured', true)
+    .is('deleted_at', null)
+    .limit(3);
+
+  // Query Koleksi Terbaru (PUBLISHED)
+  const { data: latestCollections } = await supabase
+    .from('collections')
+    .select(`
+      id,
+      collection_code,
+      title,
+      slug,
+      created_at,
+      category:categories(name),
+      dhapur:dhapurs(name),
+      images:collection_images(image_url, is_primary)
+    `)
+    .eq('status', 'PUBLISHED')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+    .limit(6);
+
+  // Kategori Utama untuk Section Exploration
+  const categoryCards = [
+    {
+      title: 'Keris Jawa',
+      desc: 'Senjata tikam berlekuk (luk) maupun lurus dengan keagungan filosofi dan kelestarian pamor.',
+      href: '/koleksi/keris',
+      countText: 'Lurus & Luk 3 s/d Luk 29',
+    },
+    {
+      title: 'Tombak Pusaka',
+      desc: 'Pusaka berbilah tajam penopang kepemimpinan dengan ragam wujud Kala Wijan hingga Luk Khusus.',
+      href: '/koleksi/tombak',
+      countText: 'Tombak Lurus & Ber-luk',
+    },
+    {
+      title: 'Pedang Jawa',
+      desc: 'Senjata sabet warisan Jawa dengan karakteristik bilah khusus seperti Luwuk, Lameng, dan Suduk Maru.',
+      href: '/koleksi/pedang',
+      countText: '9 Dhapur Klasik Jawa',
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="min-h-screen bg-[#0D0D0D] text-[#F5F2EB]">
+      {/* 1. HERO SECTION */}
+      <HeroSection />
+
+      {/* 2. TENTANG RUMAH PUSAKA BANYUMAS */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-6 border-l-2 border-[#D4AF37] pl-6">
+            <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] block">
+              Sekilas Museum & Arsip
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-serif text-[#D4AF37] leading-tight">
+              Mendedikasikan Pelestarian Pengetahuan Pusaka
+            </h2>
+          </div>
+          <div className="lg:col-span-7 space-y-4 text-xs sm:text-sm text-[#F5F2EB]/70 leading-relaxed">
+            <p>
+              <strong>Rumah Pusaka Banyumas</strong> berdiri sebagai ruang arsip digital yang mendokumentasikan setiap spesifikasi fisikal, latar sejarah, nilai filosofis, serta klasifikasi rinci dari setiap artefak pusaka[cite: 1].
+            </p>
+            <p>
+              Dengan memadukan pendekatan kuratorial arsip sejarah dan teknologi modern, platform ini membuka akses seluas-luasnya bagi masyarakat, akademisi, dan generasi muda untuk mempelajari warisan budaya luhur tanpa batasan jarak.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/tentang"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-[#D4AF37] hover:underline uppercase tracking-wider"
+              >
+                <span>Baca Selengkapnya Tentang Visi Kami</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. KOLEKSI PILIHAN (FEATURED COLLECTIONS) */}
+      {featuredCollections && featuredCollections.length > 0 && (
+        <section className="py-20 bg-[#0A0A0A] border-t border-[#D4AF37]/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[#D4AF37] text-xs uppercase tracking-[0.2em] mb-2">
+                  <Flame className="w-4 h-4" />
+                  <span>Koleksi Utama</span>
+                </div>
+                <h2 className="text-3xl font-serif text-[#D4AF37]">
+                  Artefak Pilihan Kurator
+                </h2>
+              </div>
+              <Link
+                href="/koleksi"
+                className="text-xs text-[#D4AF37] hover:underline flex items-center gap-1 uppercase tracking-wider font-semibold"
+              >
+                <span>Lihat Semua Koleksi</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredCollections.map((item: any) => {
+                const primaryImage =
+                  item.images?.find((img: any) => img.is_primary)?.image_url ||
+                  item.images?.[0]?.image_url ||
+                  '/images/placeholder-pusaka.jpg';
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/koleksi/${item.slug}`}
+                    className="group bg-[#121212] rounded-xl border border-[#D4AF37]/30 overflow-hidden hover:border-[#D4AF37] transition-all duration-300 shadow-xl flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Image Container */}
+                      <div className="aspect-[4/3] bg-black relative overflow-hidden">
+                        <img
+                          src={primaryImage}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-sm border border-[#D4AF37]/40 text-[#D4AF37] text-[10px] font-mono px-2.5 py-1 rounded">
+                          {item.collection_code}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-6 space-y-3">
+                        <div className="text-[10px] text-[#D4AF37] font-semibold uppercase tracking-wider">
+                          {item.category?.name} • {item.dhapur?.name || 'Dhapur Tidak Ditentukan'}
+                        </div>
+                        <h3 className="font-serif text-lg text-[#F5F2EB] group-hover:text-[#D4AF37] transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-[#F5F2EB]/60">
+                          {item.estimated_period || item.origin ? (
+                            <>
+                              {item.estimated_period && <span>{item.estimated_period}</span>}
+                              {item.estimated_period && item.origin && <span> • </span>}
+                              {item.origin && <span>{item.origin}</span>}
+                            </>
+                          ) : (
+                            'Informasi asal belum tersedia'
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="px-6 pb-6 pt-2 border-t border-white/5 flex items-center justify-between text-xs text-[#D4AF37]">
+                      <span>Lihat Detail Artefak</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 4. JELAJAHI BERDASARKAN KATEGORI */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] block">
+            Kategori Klasifikasi
+          </span>
+          <h2 className="text-3xl font-serif text-[#D4AF37]">
+            Jelajahi Berdasarkan Golongan
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {categoryCards.map((card, idx) => (
+            <Link
+              key={idx}
+              href={card.href}
+              className="p-8 rounded-xl border border-white/10 bg-[#121212] hover:border-[#D4AF37]/60 hover:bg-black/60 transition-all duration-300 group flex flex-col justify-between"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <div className="space-y-4">
+                <div className="p-3 w-fit rounded-lg bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 group-hover:bg-[#D4AF37] group-hover:text-black transition-all">
+                  <Library className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-serif text-[#F5F2EB] group-hover:text-[#D4AF37] transition-colors">
+                  {card.title}
+                </h3>
+                <p className="text-xs text-[#F5F2EB]/60 leading-relaxed">
+                  {card.desc}
+                </p>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium text-[#D4AF37]">
+                <span>{card.countText}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. SEKSI ANATOMI RICIKAN */}
+      <RicikanHighlight />
+
+      {/* 6. KOLEKSI TERBARU */}
+      {latestCollections && latestCollections.length > 0 && (
+        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4 border-b border-white/10 pb-6">
+            <div>
+              <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] block mb-1">
+                Arsip Baru Ditambahkan
+              </span>
+              <h2 className="text-3xl font-serif text-[#D4AF37]">
+                Koleksi Terbaru
+              </h2>
+            </div>
+            <Link
+              href="/koleksi"
+              className="text-xs text-[#D4AF37] hover:underline flex items-center gap-1 uppercase tracking-wider font-semibold"
             >
-              Learning
-            </a>{" "}
-            center.
+              <span>Lihat Seluruh Katalog</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {latestCollections.map((item: any) => {
+              const primaryImage =
+                item.images?.find((img: any) => img.is_primary)?.image_url ||
+                item.images?.[0]?.image_url ||
+                '/images/placeholder-pusaka.jpg';
+
+              return (
+                <Link
+                  key={item.id}
+                  href={`/koleksi/${item.slug}`}
+                  className="bg-[#121212] rounded-lg border border-white/10 overflow-hidden hover:border-[#D4AF37]/50 transition-all group flex items-center p-3 gap-4"
+                >
+                  <div className="w-20 h-20 bg-black rounded shrink-0 overflow-hidden border border-white/10">
+                    <img
+                      src={primaryImage}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] text-[#D4AF37] font-mono">
+                      {item.collection_code}
+                    </div>
+                    <h3 className="font-serif text-sm text-[#F5F2EB] group-hover:text-[#D4AF37] transition-colors truncate">
+                      {item.title}
+                    </h3>
+                    <div className="text-[11px] text-[#F5F2EB]/50 truncate mt-0.5">
+                      {item.category?.name} • {item.dhapur?.name || 'Dhapur N/A'}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* 7. BOTTOM EXPLORE ARCHIVE CTA */}
+      <section className="py-16 bg-gradient-to-b from-[#0D0D0D] via-[#121212] to-[#0D0D0D] border-t border-[#D4AF37]/20 text-center px-4">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="p-3 w-fit rounded-full bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 mx-auto">
+            <Compass className="w-6 h-6" />
+          </div>
+          <h2 className="text-3xl font-serif text-[#D4AF37]">
+            Mari Mengintai Khazanah Sejarah
+          </h2>
+          <p className="text-xs sm:text-sm text-[#F5F2EB]/70 leading-relaxed">
+            Selami ratusan dokumentasi dhapur, kelengkapan ricikan, serta uraian narasi budaya koleksi pusaka Rumah Pusaka Banyumas[cite: 1].
           </p>
+          <div>
+            <Link
+              href="/koleksi"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#D4AF37] hover:bg-[#C5A059] text-black text-xs font-bold uppercase tracking-[0.15em] rounded-lg transition-all shadow-xl"
+            >
+              <span>Masuki Katalog Koleksi</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

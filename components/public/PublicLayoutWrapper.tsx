@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import PublicHeader from '@/components/public/PublicHeader';
 import PublicFooter from '@/components/public/PublicFooter';
+import InstallPwaBanner from '@/components/public/InstallPwaBanner';
 
 export default function PublicLayoutWrapper({
   children,
@@ -12,7 +13,6 @@ export default function PublicLayoutWrapper({
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
 
-  // Jika sedang berada di area admin (/admin/*), jangan tampilkan Header & Footer publik
   if (isAdminRoute) {
     return <>{children}</>;
   }
@@ -22,6 +22,9 @@ export default function PublicLayoutWrapper({
       <PublicHeader />
       <div className="flex-1">{children}</div>
       <PublicFooter />
+
+      {/* NOTIFIKASI INSTALL PWA CUSTOM */}
+      <InstallPwaBanner />
     </div>
   );
 }

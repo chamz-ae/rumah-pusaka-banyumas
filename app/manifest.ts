@@ -7,13 +7,27 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Digital Museum & Heritage Database Keris, Tombak, dan Pedang Jawa.',
     start_url: '/',
     display: 'standalone',
+    orientation: 'portrait',
     background_color: '#0D0D0D',
     theme_color: '#D4AF37',
     icons: [
       {
-        src: '/favicon.ico',
-        sizes: 'any',
-        type: 'image/x-icon',
+        src: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
       },
     ],
   };

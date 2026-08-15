@@ -47,7 +47,6 @@ export default function Navbar() {
 
     fetchUser();
 
-    // 💡 LISTEN PERUBAHAN STATUS AUTHENTIKASI SECARA REAL-TIME (LOGIN / LOGOUT)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -64,23 +63,22 @@ export default function Navbar() {
     };
   }, [supabase]);
 
-  // Sembunyikan Navbar publik jika berada di dalam area Dashboard Member/Admin
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/member')) {
     return null;
   }
 
+  // RESTRUKTURISASI MENU NAVBAR RINGKAS & PROFESIONAL
   const navLinks = [
     { name: 'Beranda', href: '/' },
-    { name: 'Semua Koleksi', href: '/koleksi' },
-    { name: 'Keris', href: '/koleksi?kategori=keris' },
-    { name: 'Tombak', href: '/koleksi?kategori=tombak' },
-    { name: 'Pedang Jawa', href: '/koleksi?kategori=pedang-jawa' },
+    { name: 'Katalog Pusaka', href: '/koleksi' },
+    { name: 'Anatomi Ricikan', href: '/ricikan' },
+    { name: 'Khazanah Sejarah', href: '/khazanah' },
+    { name: 'Tentang Kami', href: '/tentang' },
   ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#D4AF37]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* LOGO BRAND */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="p-2 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/40 text-[#D4AF37] group-hover:scale-105 transition-all">
             <Landmark className="w-6 h-6" />
@@ -95,7 +93,6 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* NAVIGASI DESKTOP */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
@@ -115,7 +112,6 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* TOMBOL AKUN DINAMIS (DESKTOP) */}
         <div className="hidden md:flex items-center gap-4">
           <Link
             href="/koleksi"
@@ -128,7 +124,6 @@ export default function Navbar() {
           {!loading && (
             <>
               {user ? (
-                /* JIKA SUDAH LOGIN */
                 <Link
                   href={profile?.role === 'admin' ? '/admin/dashboard' : '/member/dashboard'}
                   className="px-4 py-2 bg-[#121212] border border-[#D4AF37]/40 hover:border-[#D4AF37] text-[#F5F2EB] rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-md group"
@@ -148,7 +143,6 @@ export default function Navbar() {
                   )}
                 </Link>
               ) : (
-                /* JIKA BELUM LOGIN / SUDAH LOGOUT */
                 <Link
                   href="/login"
                   className="px-5 py-2.5 bg-[#D4AF37] hover:bg-[#C5A059] text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-lg hover:scale-105"
@@ -161,7 +155,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* HAMBURGER MENU (MOBILE) */}
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -172,7 +165,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU DRAWER */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-[#121212] border-b border-[#D4AF37]/20 p-5 space-y-4">
           <div className="flex flex-col gap-3">

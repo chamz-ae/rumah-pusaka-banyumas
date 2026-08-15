@@ -69,7 +69,7 @@ export default function RicikanHighlight() {
 
         <div className="mt-12 text-center">
           <Link
-            href="/koleksi"
+            href="/ricikan"
             className="inline-flex items-center gap-2 text-xs font-semibold text-[#D4AF37] hover:underline uppercase tracking-wider"
           >
             <span>Pelajari Klasifikasi Ricikan Selengkapnya</span>

@@ -1,41 +1,35 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
+import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import Navbar from '@/components/public/Navbar';
+import InstallPwaBanner from '@/components/public/InstallPwaBanner';
 import './globals.css';
-import PublicLayoutWrapper from '@/components/public/PublicLayoutWrapper';
-import PwaRegister from '@/components/public/PwaRegister';
 
-export const viewport: Viewport = {
-  themeColor: '#D4AF37',
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-};
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-serif',
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
-  title: 'Rumah Pusaka Banyumas — Digital Museum & Heritage Archive',
-  description:
-    'Mendokumentasikan, mengarsipkan, dan mempublikasikan warisan pusaka budaya Keris, Tombak, dan Pedang Jawa.',
-  manifest: '/manifest.webmanifest',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Rumah Pusaka',
-  },
-  icons: {
-    icon: '/icon-192.png',
-    apple: '/apple-touch-icon.png',
-  },
+  title: 'Rumah Pusaka Banyumas — Museum Digital & Tosan Aji Jawa',
+  description: 'Arsip digital resmi inventarisasi tatanan pusaka, dhapur, pamor, dan budaya kolektor.',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="id" className="scroll-smooth">
-      <body className="bg-[#0D0D0D] text-[#F5F2EB] antialiased selection:bg-[#D4AF37] selection:text-black">
-        <PwaRegister />
-        <PublicLayoutWrapper>{children}</PublicLayoutWrapper>
+    <html lang="id" className={`${playfair.variable} ${jakarta.variable}`}>
+      <body className="bg-[#0D0D0D] text-[#F5F2EB] font-sans antialiased selection:bg-[#D4AF37] selection:text-black">
+        <Navbar />
+        {children}
+        <InstallPwaBanner />
       </body>
     </html>
   );

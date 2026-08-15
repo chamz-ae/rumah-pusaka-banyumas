@@ -11,9 +11,15 @@ export default function PublicLayoutWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname.startsWith('/admin');
 
-  if (isAdminRoute) {
+  // Sembunyikan Header & Footer Publik jika berada di area Dashboard (Admin/Member) atau Autentikasi
+  const isAppRoute =
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/member') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register');
+
+  if (isAppRoute) {
     return <>{children}</>;
   }
 

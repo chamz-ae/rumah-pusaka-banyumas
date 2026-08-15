@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import DetailGallery from '@/components/public/DetailGallery';
 import CollectionCard, { PublicCollectionItem } from '@/components/public/CollectionCard';
 import ShareButton from '@/components/public/ShareButton';
+import ArtefactInteractions from '@/components/public/ArtefactInteractions';
 import {
   ArrowLeft,
   ShieldCheck,
@@ -15,11 +16,12 @@ import {
   Calendar,
   MapPin,
   Layers,
+  User,
+  MessageCircle,
 } from 'lucide-react';
 
 export const revalidate = 60;
 
-// FUNGSI GENERATE METADATA DINAMIS UNTUK OPEN GRAPH & SOCIAL MEDIA PREVIEW
 export async function generateMetadata({
   params,
 }: {
@@ -79,12 +81,6 @@ export async function generateMetadata({
       locale: 'id_ID',
       type: 'article',
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: pageTitle,
-      description: pageDescription,
-      images: [primaryImage],
-    },
   };
 }
 
@@ -96,7 +92,7 @@ export default async function CollectionDetailPage({
   const { slug } = await params;
   const supabase = await createClient();
 
-  // 1. Fetch Detail Koleksi
+  // 1. Fetch Detail Koleksi & Profil Kolektor Pemilik
   const { data: collection } = await supabase
     .from('collections')
     .select(`
@@ -107,7 +103,8 @@ export default async function CollectionDetailPage({
       ricikan_rel:collection_ricikan(
         ricikan:ricikan(id, name, slug)
       ),
-      images:collection_images(id, image_url, alt_text, is_primary)
+      images:collection_images(id, image_url, alt_text, is_primary),
+      collector:profiles(id, username, full_name, avatar_url, location, phone_number, is_verified)
     `)
     .eq('slug', slug)
     .eq('status', 'PUBLISHED')
@@ -118,8 +115,23 @@ export default async function CollectionDetailPage({
     notFound();
   }
 
-  const categoryObj = collection.category as any;
-  const categoryName = Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name;
+  // Fetch Hitungan Likes & List Komentar
+  const { count: likeCount } = await supabase
+    .from('collection_likes')
+    .select('id', { count: 'exact', head: true })
+    .eq('collection_id', collection.id);
+
+  const { data: comments } = await supabase
+    .from('collection_comments')
+    .select(`
+      id,
+      content,
+      created_at,
+      user_id,
+      user:profiles(full_name, username, avatar_url, is_verified)
+    `)
+    .eq('collection_id', collection.id)
+    .order('created_at', { ascending: false });
 
   // 2. Fetch Koleksi Serupa
   const { data: relatedCollections } = await supabase
@@ -134,7 +146,8 @@ export default async function CollectionDetailPage({
       origin,
       category:categories(name, slug),
       dhapur:dhapurs(name),
-      images:collection_images(image_url, is_primary)
+      images:collection_images(image_url, is_primary),
+      collector:profiles(username, full_name, avatar_url, is_verified)
     `)
     .eq('status', 'PUBLISHED')
     .eq('category_id', collection.category_id)
@@ -142,8 +155,14 @@ export default async function CollectionDetailPage({
     .is('deleted_at', null)
     .limit(3);
 
-  const ricikanList =
-    collection.ricikan_rel?.map((r: any) => r.ricikan).filter(Boolean) || [];
+  const categoryObj = collection.category as any;
+  const categoryName = Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name;
+  const ricikanList = collection.ricikan_rel?.map((r: any) => r.ricikan).filter(Boolean) || [];
+  const collector = (collection as any).collector;
+
+  const whatsappUrl = collector?.phone_number
+    ? `https://api.whatsapp.com/send?phone=${collector.phone_number.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(`Halo ${collector.full_name}, saya tertarik berdiskusi tentang artefak "${collection.title}" di Rumah Pusaka Banyumas.`)}`
+    : null;
 
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-[#F5F2EB] pt-28 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -157,7 +176,6 @@ export default async function CollectionDetailPage({
           <span>Kembali ke Seluruh Koleksi</span>
         </Link>
 
-        {/* TOMBOL SHARE */}
         <ShareButton
           title={collection.title}
           slug={collection.slug}
@@ -167,7 +185,6 @@ export default async function CollectionDetailPage({
 
       {/* SECTION 1: HEADER & IDENTITAS ARTEFAK */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start mb-16">
-        {/* Gallery */}
         <div className="lg:col-span-6">
           <DetailGallery
             images={collection.images || []}
@@ -175,7 +192,6 @@ export default async function CollectionDetailPage({
           />
         </div>
 
-        {/* Ringkasan */}
         <div className="lg:col-span-6 space-y-6">
           <div>
             <div className="flex items-center gap-2 flex-wrap mb-3">
@@ -196,6 +212,57 @@ export default async function CollectionDetailPage({
               {collection.title}
             </h1>
           </div>
+
+          {/* KOTAK PEMILIK / KOLEKTOR */}
+          {collector && (
+            <div className="p-4 rounded-xl border border-[#D4AF37]/30 bg-[#121212] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#1A1A1A] border border-[#D4AF37] overflow-hidden shrink-0 flex items-center justify-center">
+                  {collector.avatar_url ? (
+                    <img
+                      src={collector.avatar_url}
+                      alt={collector.full_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-[#D4AF37]" />
+                  )}
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase text-[#D4AF37] font-bold tracking-wider">
+                    Dikoleksi Oleh
+                  </div>
+                  <Link
+                    href={`/kolektor/${collector.username}`}
+                    className="font-serif text-sm font-bold text-[#F5F2EB] hover:underline flex items-center gap-1"
+                  >
+                    <span>{collector.full_name}</span>
+                    {collector.is_verified && <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />}
+                  </Link>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {whatsappUrl && (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/30 text-emerald-300 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="hidden sm:inline">Diskusi</span>
+                  </a>
+                )}
+                <Link
+                  href={`/kolektor/${collector.username}`}
+                  className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-[#D4AF37] rounded-lg"
+                >
+                  Galeri
+                </Link>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4 p-5 rounded-xl border border-[#D4AF37]/20 bg-[#121212]">
             <div className="space-y-1">
@@ -298,7 +365,16 @@ export default async function CollectionDetailPage({
         </div>
       </div>
 
-      {/* SECTION 4: KOLEKSI SERUPA */}
+      {/* SECTION 4: APRESIASI LIKES & DISKUSI KOMUNITAS */}
+      <div className="mb-16">
+        <ArtefactInteractions
+          collectionId={collection.id}
+          initialLikeCount={likeCount || 0}
+          initialComments={comments || []}
+        />
+      </div>
+
+      {/* SECTION 5: KOLEKSI SERUPA */}
       {relatedCollections && relatedCollections.length > 0 && (
         <section className="pt-12 border-t border-[#D4AF37]/20">
           <div className="flex items-center justify-between mb-8">

@@ -1,23 +1,19 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import HeroSection from '@/components/public/HeroSection';
 import RicikanHighlight from '@/components/public/RicikanHighlight';
 import {
   Compass,
   ArrowRight,
   Sparkles,
-  ShieldCheck,
-  BookOpen,
   Library,
   Flame,
 } from 'lucide-react';
 
-export const revalidate = 60; // Revalidate data setiap 60 detik
+export const revalidate = 60; 
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  // Query Koleksi Unggulan (Featured & PUBLISHED)
   const { data: featuredCollections } = await supabase
     .from('collections')
     .select(`
@@ -36,7 +32,6 @@ export default async function HomePage() {
     .is('deleted_at', null)
     .limit(3);
 
-  // Query Koleksi Terbaru (PUBLISHED)
   const { data: latestCollections } = await supabase
     .from('collections')
     .select(`
@@ -54,35 +49,69 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
     .limit(6);
 
-  // Kategori Utama untuk Section Exploration
   const categoryCards = [
     {
       title: 'Keris Jawa',
       desc: 'Senjata tikam berlekuk (luk) maupun lurus dengan keagungan filosofi dan kelestarian pamor.',
-      href: '/koleksi/keris',
+      href: '/koleksi?kategori=keris',
       countText: 'Lurus & Luk 3 s/d Luk 29',
     },
     {
       title: 'Tombak Pusaka',
       desc: 'Pusaka berbilah tajam penopang kepemimpinan dengan ragam wujud Kala Wijan hingga Luk Khusus.',
-      href: '/koleksi/tombak',
+      href: '/koleksi?kategori=tombak',
       countText: 'Tombak Lurus & Ber-luk',
     },
     {
       title: 'Pedang Jawa',
       desc: 'Senjata sabet warisan Jawa dengan karakteristik bilah khusus seperti Luwuk, Lameng, dan Suduk Maru.',
-      href: '/koleksi/pedang',
+      href: '/koleksi?kategori=pedang-jawa',
       countText: '9 Dhapur Klasik Jawa',
     },
   ];
 
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-[#F5F2EB]">
-      {/* 1. HERO SECTION */}
-      <HeroSection />
+      
+      {/* 1. HERO SECTION (DENGAN LOGO SQUARE PNG) */}
+      <section className="px-4 max-w-5xl mx-auto text-center space-y-8 pt-32 pb-20">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs uppercase font-mono tracking-widest shadow-lg">
+          <Sparkles className="w-4 h-4" />
+          <span>Digital Museum & Heritage Archive</span>
+          <Sparkles className="w-4 h-4" />
+        </div>
+
+        <div className="space-y-5">
+          {/* LOGO SQUARE (PNG) */}
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl flex items-center justify-center mx-auto shadow-2xl overflow-hidden border border-[#D4AF37]/30 bg-[#121212]">
+            <img 
+              src="https://res.cloudinary.com/dmmpuvtwx/image/upload/v1786837618/logo_a1zfbh.png" 
+              alt="Logo Square Rumah Pusaka" 
+              className="w-full h-full object-contain p-2" 
+            />
+          </div>
+          
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif text-[#D4AF37] font-bold tracking-tight leading-tight">
+            Rumah Pusaka Banyumas
+          </h1>
+          <p className="text-lg sm:text-2xl font-serif italic text-[#F5F2EB]/90 font-light">
+            "Warisan yang Dirawat, Sejarah yang Diingat."
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <Link
+            href="/koleksi"
+            className="w-full sm:w-auto px-7 py-3.5 bg-[#D4AF37] hover:bg-[#C5A059] text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 hover:scale-105"
+          >
+            <Compass className="w-4 h-4" />
+            <span>Jelajahi Koleksi</span>
+          </Link>
+        </div>
+      </section>
 
       {/* 2. TENTANG RUMAH PUSAKA BANYUMAS */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#D4AF37]/20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 space-y-6 border-l-2 border-[#D4AF37] pl-6">
             <span className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] block">
@@ -149,7 +178,6 @@ export default async function HomePage() {
                     className="group bg-[#121212] rounded-xl border border-[#D4AF37]/30 overflow-hidden hover:border-[#D4AF37] transition-all duration-300 shadow-xl flex flex-col justify-between"
                   >
                     <div>
-                      {/* Image Container */}
                       <div className="aspect-[4/3] bg-black relative overflow-hidden">
                         <img
                           src={primaryImage}
@@ -161,7 +189,6 @@ export default async function HomePage() {
                         </div>
                       </div>
 
-                      {/* Content */}
                       <div className="p-6 space-y-3">
                         <div className="text-[10px] text-[#D4AF37] font-semibold uppercase tracking-wider">
                           {item.category?.name} • {item.dhapur?.name || 'Dhapur Tidak Ditentukan'}
@@ -296,7 +323,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 7. BOTTOM EXPLORE ARCHIVE CTA */}
+      {/* 7. BOTTOM EXPLORE ARCHIVE CTA (MENGARAH KE /KHAZANAH) */}
       <section className="py-16 bg-gradient-to-b from-[#0D0D0D] via-[#121212] to-[#0D0D0D] border-t border-[#D4AF37]/20 text-center px-4">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="p-3 w-fit rounded-full bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 mx-auto">
@@ -310,10 +337,10 @@ export default async function HomePage() {
           </p>
           <div>
             <Link
-              href="/koleksi"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#D4AF37] hover:bg-[#C5A059] text-black text-xs font-bold uppercase tracking-[0.15em] rounded-lg transition-all shadow-xl"
+              href="/khazanah"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#D4AF37] hover:bg-[#C5A059] text-black text-xs font-bold uppercase tracking-[0.15em] rounded-lg transition-all shadow-xl hover:scale-105"
             >
-              <span>Masuki Katalog Koleksi</span>
+              <span>Masuki Khazanah Sejarah</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

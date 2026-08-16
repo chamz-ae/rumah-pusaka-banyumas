@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
-  Landmark,
   LogIn,
   User,
   LayoutDashboard,
@@ -63,11 +62,11 @@ export default function Navbar() {
     };
   }, [supabase]);
 
+  // Sembunyikan Navbar publik jika berada di dalam area Dashboard Member/Admin
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/member')) {
     return null;
   }
 
-  // RESTRUKTURISASI MENU NAVBAR RINGKAS & PROFESIONAL
   const navLinks = [
     { name: 'Beranda', href: '/' },
     { name: 'Katalog Pusaka', href: '/koleksi' },
@@ -79,9 +78,15 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#D4AF37]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="p-2 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/40 text-[#D4AF37] group-hover:scale-105 transition-all">
-            <Landmark className="w-6 h-6" />
+        
+        {/* BRAND & LOGO SQUARE */}
+        <Link href="/" className="flex items-center gap-3 group w-fit">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg overflow-hidden border border-[#D4AF37]/40 bg-[#121212] group-hover:scale-105 transition-transform flex items-center justify-center">
+            <img 
+              src="https://res.cloudinary.com/dmmpuvtwx/image/upload/v1786837618/logo_a1zfbh.png" 
+              alt="Logo Square" 
+              className="w-full h-full object-contain p-1" 
+            />
           </div>
           <div>
             <span className="font-serif text-lg font-bold text-[#F5F2EB] tracking-wide block leading-none">
@@ -93,6 +98,7 @@ export default function Navbar() {
           </div>
         </Link>
 
+        {/* NAVIGASI DESKTOP */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
@@ -112,6 +118,7 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* TOMBOL AKUN DINAMIS (DESKTOP) */}
         <div className="hidden md:flex items-center gap-4">
           <Link
             href="/koleksi"
@@ -155,6 +162,7 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* HAMBURGER MENU (MOBILE) */}
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -165,6 +173,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* MOBILE MENU DRAWER */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-[#121212] border-b border-[#D4AF37]/20 p-5 space-y-4">
           <div className="flex flex-col gap-3">

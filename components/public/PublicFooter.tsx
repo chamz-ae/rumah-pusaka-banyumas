@@ -1,38 +1,28 @@
 import Link from 'next/link';
-import { Landmark, Sparkles, Compass } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 export default function PublicFooter() {
   return (
     <footer className="bg-[#080808] text-[#F5F2EB] border-t border-[#D4AF37]/20 relative overflow-hidden">
-      {/* Ornamen Garis Aksen Emas */}
       <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Kolom 1: Brand & Tagline */}
-          <div className="md:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-[#D4AF37]/10 border border-[#D4AF37]/40">
-                <Landmark className="w-6 h-6 text-[#D4AF37]" />
-              </div>
-              <div>
-                <span className="font-serif text-lg text-[#D4AF37] font-bold tracking-wide block">
-                  Rumah Pusaka Banyumas
-                </span>
-                <span className="text-[10px] text-[#F5F2EB]/50 uppercase tracking-[0.2em] block">
-                  Digital Collection Archive
-                </span>
-              </div>
+          <div className="md:col-span-2 space-y-5">
+            
+            {/* LOGO PANJANG DI FOOTER */}
+            <Link href="/" className="inline-flex items-center gap-3 w-fit">
+              <img 
+                src="https://res.cloudinary.com/dmmpuvtwx/image/upload/v1786837600/logo_foictd.jpg" 
+                alt="Logo Rumah Pusaka Banyumas" 
+                className="h-12 sm:h-14 w-auto object-contain rounded-lg hover:scale-105 transition-transform" 
+              />
             </Link>
 
             <p className="text-xs text-[#F5F2EB]/70 leading-relaxed max-w-md">
               "Warisan yang Dirawat, Sejarah yang Diingat." Mendedikasikan pendokumentasian, pelestarian, dan penyebarluasan wawasan pustaka pusaka budaya Jawa khususnya di wilayah Banyumas dengan standar ilmiah arsip museum.
             </p>
-
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#D4AF37]/5 border border-[#D4AF37]/20 text-[11px] text-[#D4AF37]">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Digital Museum & Heritage Database</span>
-            </div>
           </div>
 
           {/* Kolom 2: Navigasi Utama */}
@@ -52,13 +42,13 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/tentang" className="hover:text-[#D4AF37] transition-colors">
-                  Tentang Rumah Pusaka
+                <Link href="/khazanah" className="hover:text-[#D4AF37] transition-colors">
+                  Khazanah Sejarah
                 </Link>
               </li>
               <li>
-                <Link href="/arsip" className="hover:text-[#D4AF37] transition-colors">
-                  Arsip Digital
+                <Link href="/tentang" className="hover:text-[#D4AF37] transition-colors">
+                  Tentang Rumah Pusaka
                 </Link>
               </li>
             </ul>
@@ -71,17 +61,17 @@ export default function PublicFooter() {
             </h3>
             <ul className="space-y-2 text-xs text-[#F5F2EB]/70">
               <li>
-                <Link href="/koleksi/keris" className="hover:text-[#D4AF37] transition-colors">
+                <Link href="/koleksi?kategori=keris" className="hover:text-[#D4AF37] transition-colors">
                   Koleksi Keris Jawa
                 </Link>
               </li>
               <li>
-                <Link href="/koleksi/tombak" className="hover:text-[#D4AF37] transition-colors">
+                <Link href="/koleksi?kategori=tombak" className="hover:text-[#D4AF37] transition-colors">
                   Koleksi Tombak Pusaka
                 </Link>
               </li>
               <li>
-                <Link href="/koleksi/pedang" className="hover:text-[#D4AF37] transition-colors">
+                <Link href="/koleksi?kategori=pedang-jawa" className="hover:text-[#D4AF37] transition-colors">
                   Koleksi Pedang Jawa
                 </Link>
               </li>

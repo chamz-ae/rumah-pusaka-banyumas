@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import RicikanHighlight from '@/components/public/RicikanHighlight';
+import PrimbonPreviewSection from '@/components/public/PrimbonPreviewSection';
 import {
   Compass,
   ArrowRight,
@@ -123,7 +124,7 @@ export default async function HomePage() {
           </div>
           <div className="lg:col-span-7 space-y-4 text-xs sm:text-sm text-[#F5F2EB]/70 leading-relaxed">
             <p>
-              <strong>Rumah Pusaka Banyumas</strong> berdiri sebagai ruang arsip digital yang mendokumentasikan setiap spesifikasi fisikal, latar sejarah, nilai filosofis, serta klasifikasi rinci dari setiap artefak pusaka[cite: 1].
+              <strong>Rumah Pusaka Banyumas</strong> berdiri sebagai ruang arsip digital yang mendokumentasikan setiap spesifikasi fisikal, latar sejarah, nilai filosofis, serta klasifikasi rinci dari setiap artefak pusaka.
             </p>
             <p>
               Dengan memadukan pendekatan kuratorial arsip sejarah dan teknologi modern, platform ini membuka akses seluas-luasnya bagi masyarakat, akademisi, dan generasi muda untuk mempelajari warisan budaya luhur tanpa batasan jarak.
@@ -323,7 +324,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 7. BOTTOM EXPLORE ARCHIVE CTA (MENGARAH KE /KHAZANAH) */}
+      {/* 7. PREVIEW PRIMBON PUSAKA DI BERANDA */}
+      <PrimbonPreviewSection />
+
+      {/* 8. BOTTOM EXPLORE ARCHIVE CTA (MENGARAH KE /KHAZANAH) */}
       <section className="py-16 bg-gradient-to-b from-[#0D0D0D] via-[#121212] to-[#0D0D0D] border-t border-[#D4AF37]/20 text-center px-4">
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="p-3 w-fit rounded-full bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 mx-auto">

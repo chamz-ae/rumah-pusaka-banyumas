@@ -69,11 +69,12 @@ export default function Navbar() {
   }
 
   // Menu navigasi setelah "Katalog Pusaka" dihapus
+ // Daftar menu navigasi yang telah disingkat
   const navLinks = [
     { name: 'Beranda', href: '/' },
-    { name: 'Cari Kolektor', href: '/kolektor' },
-    { name: 'Anatomi Ricikan', href: '/ricikan' },
-    { name: 'Khazanah Sejarah', href: '/khazanah' },
+    { name: 'Kolektor', href: '/kolektor' },
+    { name: 'Ricikan', href: '/ricikan' },
+    { name: 'Khazanah', href: '/khazanah' },
     { name: 'Primbon', href: '/primbon' },
     { name: 'Tentang Kami', href: '/tentang' },
   ];
